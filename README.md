@@ -198,6 +198,9 @@ Use the following configuration:
   <kbd>Ctrl</kbd> + <kbd>Space</kbd> from entering the rarely used full-width
   mode.
 - Keep <kbd>Ctrl</kbd> + <kbd>.</kbd> enabled for Chinese/English punctuation.
+- To make <kbd>Ctrl</kbd> + <kbd>.</kbd> toggle dynamically, turn off
+  **Use English punctuation when typing Chinese** on Microsoft Pinyin's
+  **General** page.
 
 ## Install the script
 
@@ -356,9 +359,32 @@ Microsoft's current reference:
 
 ### Why `Ctrl + .` can appear to do nothing
 
-The shortcut shows no notification. It only changes punctuation typed
-**afterward**, and Microsoft documents it as working only while Pinyin is in
-**Chinese mode**.
+First check this option on Microsoft Pinyin's **General** page:
+
+```text
+Use English punctuation when typing Chinese
+```
+
+When this fixed option is enabled, the modern Microsoft Pinyin IME forces
+English punctuation and ignores <kbd>Ctrl</kbd> + <kbd>.</kbd>. The shortcut
+can still appear as enabled on the **Keys** page, but it will not toggle the
+punctuation mode. This is a known behavior of the modern IME.
+
+To enable dynamic switching:
+
+1. Open **Settings** > **Time & language** > **Language & region**.
+2. Open **Language options** for Chinese (Simplified, China).
+3. Open **Keyboard options** for Microsoft Pinyin.
+4. Select **General**.
+5. Turn off **Use English punctuation when typing Chinese**.
+6. Return to **Keys** and keep
+   <kbd>Ctrl</kbd> + <kbd>.</kbd> enabled.
+7. Switch away from Microsoft Pinyin and back, or close and reopen the current
+   text field.
+
+With the fixed option disabled, the shortcut shows no notification. It only
+changes punctuation typed **afterward**, and Microsoft documents it as working
+only while Pinyin is in **Chinese mode**.
 
 Test it in Windows Notepad:
 
@@ -376,9 +402,11 @@ Test it in Windows Notepad:
    ,.
    ```
 
-If both tests produce `,.`, Microsoft Pinyin is probably in its internal
-English mode. Press <kbd>Ctrl</kbd> + <kbd>Space</kbd> to return to Chinese
-mode, then test <kbd>Ctrl</kbd> + <kbd>.</kbd> again.
+If both tests produce `,.`, check these in order:
+
+1. Confirm that **Use English punctuation when typing Chinese** is off.
+2. Confirm that Pinyin is not in its internal English mode. Press
+   <kbd>Ctrl</kbd> + <kbd>Space</kbd> to return to Chinese mode and test again.
 
 If it works in Notepad but not in a particular application, that application
 is intercepting the shortcut. If it also fails in Notepad:
@@ -392,6 +420,16 @@ is intercepting the shortcut. If it also fails in Notepad:
 Character width and punctuation mode are separate settings. Disabling the
 full-width/half-width shortcut does not disable
 <kbd>Ctrl</kbd> + <kbd>.</kbd>.
+
+In practice, the modern Pinyin IME requires a choice:
+
+- **Always use English punctuation:** enable the fixed option, but dynamic
+  <kbd>Ctrl</kbd> + <kbd>.</kbd> switching is unavailable.
+- **Allow dynamic switching:** disable the fixed option, then use
+  <kbd>Ctrl</kbd> + <kbd>.</kbd>.
+
+Microsoft community report:
+[Ctrl+period stops working when fixed English punctuation is enabled](https://learn.microsoft.com/zh-cn/answers/questions/3842555/windows11-ctrl).
 
 ## Matching macOS configuration
 

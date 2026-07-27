@@ -19,6 +19,7 @@ Windows 脚本还会把鼠标侧键原本的“后退/前进”替换成快速�
 | 松开 <kbd>Caps Lock</kbd> | 发送 <kbd>左 Alt</kbd> + <kbd>左 Shift</kbd> |
 | 按鼠标侧键 1 | 向下滚动 6 格 |
 | 按鼠标侧键 2 | 向上滚动 6 格 |
+| 在微软拼音下按 <kbd>Ctrl</kbd> + <kbd>.</kbd> | 持久切换中文/英文标点 |
 | 普通按下 <kbd>Caps Lock</kbd> | 阻止系统原有的大写锁定行为 |
 
 这些映射全局生效，会应用到所有程序。
@@ -251,7 +252,10 @@ HKEY_CURRENT_USER\Control Panel\Input Method\Hot Keys\00000010
 加载器只包含 AutoHotkey 版本要求和一个 `#Include` 指令。Windows 登录时启动加载器，
 加载器再从稳定的 `.config` 目录读取主配置。
 
-## 完整脚本
+## 脚本核心逻辑
+
+完整、可直接运行的版本参见
+[`capslock-ime-safe-mouse.ahk`](capslock-ime-safe-mouse.ahk)。
 
 ```ahk
 #Requires AutoHotkey v2.0
@@ -270,6 +274,10 @@ SetCapsLockState "AlwaysOff"
 
 XButton1::Send "{WheelDown 6}"
 XButton2::Send "{WheelUp 6}"
+
+#HotIf IsSimplifiedChineseLayoutActive()
+^.::TogglePersistentPunctuation()
+#HotIf
 ```
 
 ## 逐段解释
@@ -332,6 +340,34 @@ XButton2::Send "{WheelUp 6}"
 不同鼠标可能以相反顺序定义两个物理侧键。如果滚动方向不符合习惯，可以交换
 `WheelDown` 和 `WheelUp`。如果滚动速度过快或过慢，把 `6` 改成其他正整数即可。
 
+### 持久化中英文标点
+
+微软拼音原生的标点状态不能可靠地跨应用保存，因此脚本会在简体中文布局活动时接管
+<kbd>Ctrl</kbd> + <kbd>.</kbd>：
+
+```ahk
+currentValue := RegRead(settingsKey, valueName, 0)
+newValue := currentValue ? 0 : 1
+RegWrite newValue, "REG_DWORD", settingsKey, valueName
+```
+
+它直接切换：
+
+```text
+HKCU\Software\Microsoft\InputMethod\Settings\CHS
+UseEnglishPunctuationsInChineseInputMode
+```
+
+- `0`：中文标点。
+- `1`：中文输入时固定使用英文标点。
+
+写入后，脚本向当前窗口请求先切到美式英文布局，再切回简体中文布局，迫使微软拼音
+立即重新读取设置。屏幕上会短暂显示“Punctuation: English”或
+“Punctuation: Chinese”。
+
+`#HotIf` 限制保证只有简体中文布局活动时才接管该快捷键。在美式英文键盘下，
+<kbd>Ctrl</kbd> + <kbd>.</kbd> 仍会交给当前应用处理。
+
 ## 微软拼音的标点与全角/半角设置
 
 微软拼音处于活动状态时，可以使用：
@@ -339,7 +375,7 @@ XButton2::Send "{WheelUp 6}"
 | 快捷键 | 功能 |
 | --- | --- |
 | <kbd>Ctrl</kbd> + <kbd>Space</kbd> | 在微软拼音的中文和内部英文模式之间切换 |
-| <kbd>Ctrl</kbd> + <kbd>.</kbd> | 在中文标点和英文标点之间切换 |
+| <kbd>Ctrl</kbd> + <kbd>.</kbd> | 由 AHK 持久切换中文和英文标点 |
 | <kbd>Shift</kbd> | 本项目关闭该模式切换，保留给英文大写输入 |
 | <kbd>Shift</kbd> + <kbd>Space</kbd> | 本项目关闭该功能，防止误切到全角 |
 
@@ -359,6 +395,9 @@ XButton2::Send "{WheelUp 6}"
 [Microsoft 简体中文输入法](https://support.microsoft.com/zh-CN/Windows/Hardware/Input-Devices/microsoft-simplified-chinese-ime)。
 
 ### 为什么 `Ctrl + .` 看起来没有作用
+
+以下限制描述的是**微软拼音原生行为**。本项目当前版本已由 AHK 接管该快捷键，
+直接切换持久化注册表设置，并刷新当前输入法，从而绕过这个限制。
 
 首先检查微软拼音“常规”页面中的：
 
@@ -425,6 +464,9 @@ Ctrl + 句点”，快捷键也不会切换。这是新版微软拼音已知的�
 
 微软社区中也有同样问题的记录：
 [开启“中文输入时使用英文标点”后 Ctrl+句点失效](https://learn.microsoft.com/zh-cn/answers/questions/3842555/windows11-ctrl)。
+
+本项目的 AHK 方案把这个固定选项本身当作二态开关，因此标点选择会保存到用户注册表，
+并被之后打开的应用和输入框继续使用。
 
 ## 配置 macOS 获得一致体验
 

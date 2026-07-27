@@ -20,6 +20,7 @@ leaving a form and losing unsaved input.
 | Release <kbd>Caps Lock</kbd> | Send <kbd>Left Alt</kbd> + <kbd>Left Shift</kbd> |
 | Press mouse side button 1 | Scroll down 6 wheel steps |
 | Press mouse side button 2 | Scroll up 6 wheel steps |
+| Press <kbd>Ctrl</kbd> + <kbd>.</kbd> in Microsoft Pinyin | Persistently switch Chinese/English punctuation |
 | Press <kbd>Caps Lock</kbd> normally | Native Caps Lock is suppressed |
 
 The mappings are global: they apply to all applications.
@@ -244,7 +245,10 @@ The loader contains only a version requirement and an `#Include` directive.
 AutoHotkey starts the loader at sign-in and loads the main configuration from
 the stable `.config` location.
 
-## Script
+## Core script
+
+See [`capslock-ime-safe-mouse.ahk`](capslock-ime-safe-mouse.ahk) for the
+complete, directly runnable script.
 
 ```ahk
 #Requires AutoHotkey v2.0
@@ -263,6 +267,10 @@ SetCapsLockState "AlwaysOff"
 
 XButton1::Send "{WheelDown 6}"
 XButton2::Send "{WheelUp 6}"
+
+#HotIf IsSimplifiedChineseLayoutActive()
+^.::TogglePersistentPunctuation()
+#HotIf
 ```
 
 ## Code explanation
@@ -331,6 +339,37 @@ Mouse hardware can label or order the two side buttons differently. If the
 scroll direction feels reversed, swap `WheelDown` and `WheelUp`. To change the
 scroll speed, replace `6` with another positive number.
 
+### Persistent punctuation switching
+
+Microsoft Pinyin's native punctuation state is not reliably retained across
+applications. The script therefore intercepts <kbd>Ctrl</kbd> +
+<kbd>.</kbd> while the Simplified Chinese layout is active:
+
+```ahk
+currentValue := RegRead(settingsKey, valueName, 0)
+newValue := currentValue ? 0 : 1
+RegWrite newValue, "REG_DWORD", settingsKey, valueName
+```
+
+It directly toggles:
+
+```text
+HKCU\Software\Microsoft\InputMethod\Settings\CHS
+UseEnglishPunctuationsInChineseInputMode
+```
+
+- `0`: Chinese punctuation.
+- `1`: force English punctuation while typing Chinese.
+
+After writing the value, the script requests English US and then Simplified
+Chinese for the active window. This forces Microsoft Pinyin to reload the
+setting immediately. A short tooltip reports either "Punctuation: English" or
+"Punctuation: Chinese."
+
+The `#HotIf` condition intercepts the shortcut only while the Simplified
+Chinese layout is active. With the English US keyboard active,
+<kbd>Ctrl</kbd> + <kbd>.</kbd> remains available to the current application.
+
 ## Microsoft Pinyin punctuation and width
 
 These shortcuts apply while Microsoft Pinyin is active:
@@ -338,7 +377,7 @@ These shortcuts apply while Microsoft Pinyin is active:
 | Shortcut | Action |
 | --- | --- |
 | <kbd>Ctrl</kbd> + <kbd>Space</kbd> | Switch Microsoft Pinyin between Chinese and internal English mode |
-| <kbd>Ctrl</kbd> + <kbd>.</kbd> | Switch between Chinese and English punctuation |
+| <kbd>Ctrl</kbd> + <kbd>.</kbd> | Persistently switch Chinese/English punctuation through AutoHotkey |
 | <kbd>Shift</kbd> | Disabled as a mode switch so it remains available for uppercase letters |
 | <kbd>Shift</kbd> + <kbd>Space</kbd> | Disabled to prevent accidental full-width mode |
 
@@ -358,6 +397,10 @@ Microsoft's current reference:
 [Microsoft Simplified Chinese IME](https://support.microsoft.com/zh-CN/Windows/Hardware/Input-Devices/microsoft-simplified-chinese-ime).
 
 ### Why `Ctrl + .` can appear to do nothing
+
+The limitation below describes **Microsoft Pinyin's native behavior**. The
+current project script bypasses it by intercepting the shortcut, toggling the
+persistent registry preference, and refreshing the active input layout.
 
 First check this option on Microsoft Pinyin's **General** page:
 
@@ -430,6 +473,10 @@ In practice, the modern Pinyin IME requires a choice:
 
 Microsoft community report:
 [Ctrl+period stops working when fixed English punctuation is enabled](https://learn.microsoft.com/zh-cn/answers/questions/3842555/windows11-ctrl).
+
+This project's AutoHotkey workaround treats the fixed preference itself as a
+two-state switch. The selected punctuation mode is stored in the user's
+registry and is therefore reused by applications and text fields opened later.
 
 ## Matching macOS configuration
 

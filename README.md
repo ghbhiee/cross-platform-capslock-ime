@@ -1,5 +1,7 @@
 # Cross-Platform Caps Lock IME
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 A small AutoHotkey v2 configuration that makes Chinese/English input switching
 feel consistent between Windows and macOS.
 

@@ -1,0 +1,5 @@
+*.bak
+*.log
+*.tmp
+Thumbs.db
+Desktop.ini

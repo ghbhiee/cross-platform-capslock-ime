@@ -58,6 +58,16 @@ Windows can keep the active input profile local to each application window.
 This is the layer switched by <kbd>Win</kbd> + <kbd>Space</kbd>,
 <kbd>Left Alt</kbd> + <kbd>Shift</kbd>, and this script's Caps Lock mapping.
 
+The complete input flow is:
+
+```text
+Caps Lock
+    ↓ AutoHotkey sends Left Alt + Left Shift
+Real input-profile switch: English US ↔ Microsoft Pinyin
+                                           ↓ Ctrl + Space
+                              Pinyin Chinese ↔ internal English mode
+```
+
 ### Layer 2: Microsoft Pinyin's internal mode
 
 Microsoft Pinyin itself has two modes:
@@ -67,6 +77,12 @@ Microsoft Pinyin itself has two modes:
 
 The default Microsoft Pinyin shortcut is <kbd>Shift</kbd>. A legacy Windows
 IME/Non-IME shortcut may also use <kbd>Ctrl</kbd> + <kbd>Space</kbd>.
+
+This setup deliberately uses <kbd>Ctrl</kbd> + <kbd>Space</kbd> and disables
+the standalone <kbd>Shift</kbd> mode switch. Caps Lock is already repurposed,
+so Shift must remain dependable for typing uppercase English letters. Leaving
+standalone Shift enabled makes accidental Pinyin mode changes more likely
+while typing capitals.
 
 This internal IME mode is not the same as selecting the English US keyboard.
 Its state is not reliably restored per application. Applications and text
@@ -121,6 +137,13 @@ an unexpected layout instead of behaving as a simple two-state toggle.
 3. Open **Advanced keyboard settings**.
 4. Enable **Let me use a different input method for each app window**.
 
+![Windows Advanced keyboard settings with per-app input methods enabled](docs/images/windows-per-app-input-method.png)
+
+**Figure 1:** Enable a different input method for each application window. In
+this example, the default input-method override is English (United States) —
+US keyboard, so new applications or controls without a saved local state begin
+with the English keyboard.
+
 This gives each active application window its own input-profile state. It is
 not a permanent application-to-language rule: a new window, a restarted
 application, or an application-created input control can inherit or reset the
@@ -141,8 +164,40 @@ Recommended use:
 4. In **Advanced Key Settings**, confirm that switching input languages uses
    <kbd>Left Alt</kbd> + <kbd>Shift</kbd>.
 
+![Windows input-language hotkeys set to Left Alt plus Shift](docs/images/windows-input-language-hotkeys.png)
+
+**Figure 2:** "Between input languages" is assigned to
+<kbd>Left Alt</kbd> + <kbd>Shift</kbd>. This is the Windows action sent by
+AutoHotkey when Caps Lock is released. The separate Chinese IME/Non-IME entry
+controls the second layer and is assigned to
+<kbd>Ctrl</kbd> + <kbd>Space</kbd>.
+
 <kbd>Win</kbd> + <kbd>Space</kbd> remains a useful way to inspect or manually
 select the active input profile.
+
+### Configure Microsoft Pinyin's internal shortcuts
+
+Open:
+
+1. **Settings** > **Time & language** > **Language & region**.
+2. Open **Language options** for Chinese (Simplified, China).
+3. Open **Keyboard options** for Microsoft Pinyin.
+4. Select **Keys**.
+
+Use the following configuration:
+
+![Microsoft Pinyin key settings](docs/images/microsoft-pinyin-key-settings.png)
+
+**Figure 3:**
+
+- Enable only <kbd>Ctrl</kbd> + <kbd>Space</kbd> for Chinese/English mode.
+- Disable standalone <kbd>Shift</kbd> and standalone <kbd>Ctrl</kbd> mode
+  switching.
+- Set full-width/half-width switching to **None**. This prevents an accidental
+  <kbd>Shift</kbd> + <kbd>Space</kbd> while pressing
+  <kbd>Ctrl</kbd> + <kbd>Space</kbd> from entering the rarely used full-width
+  mode.
+- Keep <kbd>Ctrl</kbd> + <kbd>.</kbd> enabled for Chinese/English punctuation.
 
 ## Install the script
 
@@ -279,10 +334,10 @@ These shortcuts apply while Microsoft Pinyin is active:
 
 | Shortcut | Action |
 | --- | --- |
-| <kbd>Shift</kbd> | Switch Microsoft Pinyin between Chinese and internal English mode |
+| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | Switch Microsoft Pinyin between Chinese and internal English mode |
 | <kbd>Ctrl</kbd> + <kbd>.</kbd> | Switch between Chinese and English punctuation |
-| <kbd>Shift</kbd> + <kbd>Space</kbd> | Switch between full-width and half-width characters |
-| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | Legacy IME/Non-IME toggle, when enabled |
+| <kbd>Shift</kbd> | Disabled as a mode switch so it remains available for uppercase letters |
+| <kbd>Shift</kbd> + <kbd>Space</kbd> | Disabled to prevent accidental full-width mode |
 
 For Chinese text with ASCII punctuation, use:
 
@@ -298,6 +353,45 @@ Example:
 
 Microsoft's current reference:
 [Microsoft Simplified Chinese IME](https://support.microsoft.com/zh-CN/Windows/Hardware/Input-Devices/microsoft-simplified-chinese-ime).
+
+### Why `Ctrl + .` can appear to do nothing
+
+The shortcut shows no notification. It only changes punctuation typed
+**afterward**, and Microsoft documents it as working only while Pinyin is in
+**Chinese mode**.
+
+Test it in Windows Notepad:
+
+1. Select Microsoft Pinyin and confirm that it is in Chinese mode.
+2. Type comma and period. Chinese punctuation mode should produce:
+
+   ```text
+   ，。
+   ```
+
+3. Press <kbd>Ctrl</kbd> + <kbd>.</kbd> once.
+4. Type comma and period again. English punctuation mode should produce:
+
+   ```text
+   ,.
+   ```
+
+If both tests produce `,.`, Microsoft Pinyin is probably in its internal
+English mode. Press <kbd>Ctrl</kbd> + <kbd>Space</kbd> to return to Chinese
+mode, then test <kbd>Ctrl</kbd> + <kbd>.</kbd> again.
+
+If it works in Notepad but not in a particular application, that application
+is intercepting the shortcut. If it also fails in Notepad:
+
+1. Confirm that <kbd>Ctrl</kbd> + <kbd>.</kbd> is still selected on Microsoft
+   Pinyin's **Keys** page.
+2. Set the option to **None**, save, then enable it again.
+3. Switch away from Microsoft Pinyin and back; if necessary, sign out and sign
+   back in to Windows.
+
+Character width and punctuation mode are separate settings. Disabling the
+full-width/half-width shortcut does not disable
+<kbd>Ctrl</kbd> + <kbd>.</kbd>.
 
 ## Matching macOS configuration
 

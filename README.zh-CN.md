@@ -56,6 +56,16 @@ Windows 可以让每个应用窗口分别保持这一层的输入配置。以下
 - <kbd>左 Alt</kbd> + <kbd>Shift</kbd>
 - 本项目映射后的 <kbd>Caps Lock</kbd>
 
+本项目的完整输入逻辑是：
+
+```text
+Caps Lock
+    ↓ AHK 发送左 Alt + 左 Shift
+真正的输入法切换：美式英文键盘 ↔ 微软拼音
+                                      ↓ Ctrl + Space
+                            微软拼音中文模式 ↔ 内部英文模式
+```
+
 ### 第二层：微软拼音内部的中英文模式
 
 微软拼音自身还包含两个状态：
@@ -65,6 +75,11 @@ Windows 可以让每个应用窗口分别保持这一层的输入配置。以下
 
 微软拼音当前默认可用 <kbd>Shift</kbd> 切换这两个状态。Windows 还可能启用了一个
 旧式的 IME/Non-IME 快捷键，即 <kbd>Ctrl</kbd> + <kbd>Space</kbd>。
+
+本项目特意使用 <kbd>Ctrl</kbd> + <kbd>Space</kbd>，并关闭微软拼音默认的
+<kbd>Shift</kbd> 模式切换。原因是 Caps Lock 已经被占用，输入英文大写字母时需要
+频繁按住 Shift；如果保留“单独按 Shift 切换中英文”，正常输入大写字母时更容易意外
+改变微软拼音的模式。
 
 需要注意：微软拼音内部的英文模式，不等于切换到了真正的“英语（美国）— 美式键盘”。
 Windows 不保证按应用可靠恢复这个临时模式，而且程序或文字输入控件也可能主动重置它。
@@ -120,6 +135,11 @@ Windows 不保证按应用可靠恢复这个临时模式，而且程序或文字
 3. 打开“高级键盘设置”。
 4. 启用“允许我为每个应用窗口使用不同的输入法”。
 
+![Windows 高级键盘设置：允许每个应用窗口使用不同的输入法](docs/images/windows-per-app-input-method.png)
+
+**图 1：** 启用“允许我为每个应用窗口使用不同的输入法”。截图中的“替代默认输入法”
+设为“英语（美国）— 美式键盘”，因此新程序或没有独立状态的输入框会优先从英文键盘开始。
+
 启用后，每个正在运行的应用窗口可以保持自己的输入配置。例如：
 
 - 在 Windows Terminal 中切换到真正的 **ENG / 美式键盘**。
@@ -137,6 +157,13 @@ Windows 不保证按应用可靠恢复这个临时模式，而且程序或文字
 4. 在“高级键设置”中，确认“在输入语言之间”使用
    <kbd>左 Alt</kbd> + <kbd>Shift</kbd>。
 
+![Windows 输入语言热键：左 Alt 加 Shift](docs/images/windows-input-language-hotkeys.png)
+
+**图 2：** “在输入语言之间”设置为 <kbd>左 Alt</kbd> + <kbd>Shift</kbd>。AHK
+在松开 Caps Lock 时发送的正是这个组合键，所以这是 Caps Lock 实际对应的 Windows
+设置。列表中的“中文（简体输入法）— 输入法/非输入法切换”是下一层状态，设置为
+<kbd>Ctrl</kbd> + <kbd>Space</kbd>。
+
 无论如何设置，<kbd>Win</kbd> + <kbd>Space</kbd> 都很适合用来查看当前有哪些输入
 配置，或者手动选择指定的输入法。
 
@@ -153,6 +180,25 @@ Windows 不保证按应用可靠恢复这个临时模式，而且程序或文字
 4. 切换到“高级键设置”。
 5. 找到类似“中文（简体）IME - IME/Non-IME Toggle”的项目。
 6. 点击“更改按键顺序”。
+
+微软拼音自身的按键页面应配置为：
+
+![微软拼音按键设置](docs/images/microsoft-pinyin-key-settings.png)
+
+**图 3：**
+
+- “中/英文模式切换”只启用 <kbd>Ctrl</kbd> + <kbd>Space</kbd>。
+- 关闭单独的 <kbd>Shift</kbd> 和 <kbd>Ctrl</kbd> 模式切换。
+- “全/半角切换”设为“无”，避免按 <kbd>Ctrl</kbd> + <kbd>Space</kbd> 时误碰
+  <kbd>Shift</kbd> + <kbd>Space</kbd>，意外进入很少使用的全角模式。
+- 保留“中/英文标点切换” <kbd>Ctrl</kbd> + <kbd>.</kbd>。
+
+微软拼音按键页面的路径通常为：
+
+1. “设置” > “时间和语言” > “语言和区域”。
+2. 在“中文（简体，中国）”旁打开“语言选项”。
+3. 在“微软拼音”旁打开“键盘选项”。
+4. 进入“按键”。
 
 在较新的 Windows 11 中，这个旧式项目有时不会完整显示，或者界面上的修改不能可靠
 生效。它的底层配置通常位于：
@@ -290,10 +336,10 @@ XButton2::Send "{WheelUp 6}"
 
 | 快捷键 | 功能 |
 | --- | --- |
-| <kbd>Shift</kbd> | 在微软拼音的中文和内部英文模式之间切换 |
+| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | 在微软拼音的中文和内部英文模式之间切换 |
 | <kbd>Ctrl</kbd> + <kbd>.</kbd> | 在中文标点和英文标点之间切换 |
-| <kbd>Shift</kbd> + <kbd>Space</kbd> | 在全角字符和半角字符之间切换 |
-| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | 已启用时，执行旧式 IME/Non-IME 切换 |
+| <kbd>Shift</kbd> | 本项目关闭该模式切换，保留给英文大写输入 |
+| <kbd>Shift</kbd> + <kbd>Space</kbd> | 本项目关闭该功能，防止误切到全角 |
 
 如果希望在中文输入状态下使用 ASCII 标点，应当使用：
 
@@ -309,6 +355,40 @@ XButton2::Send "{WheelUp 6}"
 
 微软官方参考：
 [Microsoft 简体中文输入法](https://support.microsoft.com/zh-CN/Windows/Hardware/Input-Devices/microsoft-simplified-chinese-ime)。
+
+### 为什么 `Ctrl + .` 看起来没有作用
+
+这个快捷键不会弹出提示窗口，只会改变**之后输入的标点**，而且仅在微软拼音的
+**中文模式**下生效。微软官方也特别注明，该组合键只在中文模式中有效。
+
+可以在 Windows 记事本中这样验证：
+
+1. 用 Caps Lock 切换到“微软拼音”，确认任务栏或输入法工具栏显示中文模式。
+2. 输入逗号和句号，中文标点模式应得到：
+
+   ```text
+   ，。
+   ```
+
+3. 按一次 <kbd>Ctrl</kbd> + <kbd>.</kbd>。
+4. 再输入逗号和句号，英文标点模式应得到：
+
+   ```text
+   ,.
+   ```
+
+如果切换前后始终得到 `,.`，最常见的原因是微软拼音当前处于内部英文模式。先按
+<kbd>Ctrl</kbd> + <kbd>Space</kbd> 回到中文模式，再测试
+<kbd>Ctrl</kbd> + <kbd>.</kbd>。
+
+如果记事本中有效、但某个程序中无效，说明该程序拦截了快捷键。如果记事本中也无效：
+
+1. 确认微软拼音“按键”页面仍选择了 <kbd>Ctrl</kbd> + <kbd>.</kbd>。
+2. 将该选项切换到“无”，保存后再重新启用。
+3. 切换到其他输入法再切回微软拼音，必要时注销并重新登录 Windows。
+
+“全/半角切换”和“中/英文标点切换”是两项独立设置。关闭全/半角快捷键不会导致
+<kbd>Ctrl</kbd> + <kbd>.</kbd> 失效。
 
 ## 配置 macOS 获得一致体验
 

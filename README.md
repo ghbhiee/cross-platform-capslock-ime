@@ -489,6 +489,14 @@ No AutoHotkey script is required on macOS.
 3. Add both **ABC** and **Pinyin - Simplified**, if they are not already present.
 4. Enable **Use the Caps Lock key to switch to and from ABC**.
 
+![macOS input-source switching and per-document memory settings](docs/images/macos-input-source-switching-and-document-memory.png)
+
+**Figure 4:** Keep ABC and Pinyin - Simplified under All Input Sources, show
+the Input menu, and enable the dedicated Chinese/English key for switching to
+and from ABC. Depending on the keyboard and macOS version, this option may be
+labelled Caps Lock instead. The same figure also shows
+**Automatically switch to a document's input source** enabled.
+
 A short press of Caps Lock switches between ABC and Simplified Pinyin. On
 supported Apple keyboards and macOS versions, holding Caps Lock activates
 normal uppercase lock.
@@ -502,6 +510,9 @@ Apple reference:
 2. Under **Text Input**, click **Edit**.
 3. Select **All Input Sources**.
 4. Enable **Automatically switch to a document's input source**.
+
+This switch appears directly below the input-source switching option in
+Figure 4.
 
 macOS associates the selected input source with a document until it is closed.
 This is document-oriented, not a permanent rule assigning one input source to
@@ -517,6 +528,13 @@ Apple reference:
 2. Open the input menu in the macOS menu bar.
 3. Select **Open Pinyin - Simplified Settings**.
 4. Enable **Use half-width punctuation**.
+
+![macOS half-width punctuation setting for Pinyin - Simplified](docs/images/macos-pinyin-halfwidth-punctuation.png)
+
+**Figure 5:** Select Pinyin - Simplified in the sidebar and enable
+**Use halfwidth punctuation**. Commas, periods, brackets, and similar
+punctuation typed in Chinese input mode will use half-width forms where
+possible, which is useful for code, Markdown, commands, and file names.
 
 The corresponding shortcut is <kbd>Option</kbd> + <kbd>Shift</kbd> +
 <kbd>H</kbd>.

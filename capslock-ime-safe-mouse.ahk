@@ -1,6 +1,8 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+; Author: guohongbo <guohongbo@outlook.com>
+
 ; Capture physical keyboard events reliably.
 InstallKeybdHook
 

@@ -572,6 +572,10 @@ XButton2::Send "{WheelDown 6}"
 4. AutoHotkey 可以保留供其他脚本使用；如果不再需要，可在“设置” > “应用” >
    “已安装的应用”中卸载。
 
+## 作者
+
+guohongbo — [guohongbo@outlook.com](mailto:guohongbo@outlook.com)
+
 ## 许可证
 
 [MIT](LICENSE)

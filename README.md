@@ -595,6 +595,10 @@ or map the hardware buttons to generic `XButton1` and `XButton2`.
 4. AutoHotkey itself can remain installed for other scripts, or be removed from
    **Settings** > **Apps** > **Installed apps**.
 
+## Author
+
+guohongbo — [guohongbo@outlook.com](mailto:guohongbo@outlook.com)
+
 ## License
 
 [MIT](LICENSE)
